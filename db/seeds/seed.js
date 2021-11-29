@@ -1,7 +1,41 @@
-const seed = (data) => {
-  const { categoryData, commentData, reviewData, userData } = data;
-  // 1. create tables
-  // 2. insert data
+const {
+  dropTables,
+  createCategories,
+  createUsers,
+  createReviews,
+  createComments,
+  seedCategories,
+  seedUsers,
+  seedReviews,
+  seedComments,
+} = require("./utils");
+
+const seed = ({ categoryData, commentData, reviewData, userData }) => {
+  return dropTables()
+    .then(() => {
+      return createCategories();
+    })
+    .then(() => {
+      return createUsers();
+    })
+    .then(() => {
+      return createReviews();
+    })
+    .then(() => {
+      return createComments();
+    })
+    .then(() => {
+      return seedCategories(categoryData);
+    })
+    .then(() => {
+      return seedUsers(userData);
+    })
+    .then(() => {
+      return seedReviews(reviewData);
+    })
+    .then(() => {
+      return seedComments(commentData);
+    });
 };
 
 module.exports = seed;
