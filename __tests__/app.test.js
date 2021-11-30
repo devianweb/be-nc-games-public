@@ -116,3 +116,72 @@ describe("GET /api/reviews/:review_id", () => {
       });
   });
 });
+
+describe("PATCH /api/reviews/:review_id", () => {
+  test("200: returns object", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(typeof review).toBe("object");
+      });
+  });
+  test("200: returned object has updated votes value", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).toHaveProperty("votes", 2);
+      });
+  });
+  test("200: returned object has correct structure", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).toEqual(
+          expect.objectContaining({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            review_body: expect.any(String),
+            designer: expect.any(String),
+            review_img_url: expect.any(String),
+            category: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+          })
+        );
+      });
+  });
+  test("200: returned object does not have 'inc_votes' property", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({ inc_votes: 1 })
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).not.toHaveProperty("inc_votes");
+      });
+  });
+  test("400: bad 'inc_votes' value", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({ inc_votes: "meow" })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+  test("400: additional keys on patch body", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({ inc_votes: 1, name: "Mitch" })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+});
