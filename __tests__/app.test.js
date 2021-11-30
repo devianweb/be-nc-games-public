@@ -60,3 +60,59 @@ describe("GET /api/categories", () => {
       });
   });
 });
+
+describe("GET /api/reviews/:review_id", () => {
+  test("200: returns an object with the correct review_id", () => {
+    return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).toHaveProperty("review_id", 1);
+      });
+  });
+  test("200: object has keys owner, title, review_id, review_body, designer, review_img_url, category, created_at, votes and comment_count", () => {
+    return request(app)
+      .get("/api/reviews/3")
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).toEqual(
+          expect.objectContaining({
+            owner: expect.any(String),
+            title: expect.any(String),
+            review_id: expect.any(Number),
+            review_body: expect.any(String),
+            designer: expect.any(String),
+            review_img_url: expect.any(String),
+            category: expect.any(String),
+            created_at: expect.any(String),
+            votes: expect.any(Number),
+            comment_count: expect.any(Number),
+          })
+        );
+      });
+  });
+  test("200: comment_count is correct", () => {
+    return request(app)
+      .get("/api/reviews/3")
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(review).toHaveProperty("comment_count", 3);
+      });
+  });
+  test("400: bad review_id", () => {
+    return request(app)
+      .get("/api/reviews/bob")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+  test("404: good review_id but does not exist", () => {
+    return request(app)
+      .get("/api/reviews/999")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("does not exist");
+      });
+  });
+});
