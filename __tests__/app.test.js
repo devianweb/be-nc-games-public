@@ -239,9 +239,9 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: { reviews } }) => {
         expect(reviews.length > 0).toBe(true);
-        // expect(reviews).toBeSortedBy("created_at", {
-        //   descending: true,
-        // });
+        expect(reviews).toBeSortedBy("created_at", {
+          descending: true,
+        });
       });
   });
   test("200: returns sorted object in correct order when given sort_by and order queries", () => {
@@ -250,9 +250,9 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: { reviews } }) => {
         expect(reviews.length > 0).toBe(true);
-        // expect(reviews).toBeSortedBy("review_id", {
-        //   descending: false,
-        // });
+        expect(reviews).toBeSortedBy("review_id", {
+          descending: false,
+        });
       });
   });
   test("200: returns sorted object in correct order when given sort_by, order and category queries", () => {
@@ -261,9 +261,9 @@ describe("GET /api/reviews", () => {
       .expect(200)
       .then(({ body: { reviews } }) => {
         expect(reviews.length > 0).toBe(true);
-        // expect(reviews).toBeSortedBy("review_id", {
-        //   descending: false,
-        // });
+        expect(reviews).toBeSortedBy("review_id", {
+          descending: false,
+        });
         reviews.forEach((review) => {
           expect(review).toHaveProperty("category", "dexterity");
         });
