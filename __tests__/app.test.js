@@ -184,4 +184,89 @@ describe("PATCH /api/reviews/:review_id", () => {
         expect(msg).toBe("invalid input");
       });
   });
+  test("404: bad 'review_id'", () => {
+    return request(app)
+      .patch("/api/reviews/99")
+      .send({ inc_votes: 1 })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("does not exist");
+      });
+  });
+});
+
+describe("GET /api/reviews", () => {
+  test("200: returns an object containing an array of reviews", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.reviews.length === 13).toBe(true);
+        expect(body).toEqual(
+          expect.objectContaining({
+            reviews: expect.any(Array),
+          })
+        );
+      });
+  });
+  test("200: each object has correct keys", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body: { reviews } }) => {
+        expect(reviews.length > 0).toBe(true);
+        reviews.forEach((review) => {
+          expect(review).toEqual(
+            expect.objectContaining({
+              owner: expect.any(String),
+              title: expect.any(String),
+              review_id: expect.any(Number),
+              review_body: expect.any(String),
+              designer: expect.any(String),
+              review_img_url: expect.any(String),
+              category: expect.any(String),
+              created_at: expect.any(String),
+              votes: expect.any(Number),
+              comment_count: expect.any(Number),
+            })
+          );
+        });
+      });
+  });
+  test("200: returns sorted object in correct order when given no queries", () => {
+    return request(app)
+      .get("/api/reviews")
+      .expect(200)
+      .then(({ body: { reviews } }) => {
+        expect(reviews.length > 0).toBe(true);
+        // expect(reviews).toBeSortedBy("created_at", {
+        //   descending: true,
+        // });
+      });
+  });
+  test("200: returns sorted object in correct order when given sort_by and order queries", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=review_id&order=asc")
+      .expect(200)
+      .then(({ body: { reviews } }) => {
+        expect(reviews.length > 0).toBe(true);
+        // expect(reviews).toBeSortedBy("review_id", {
+        //   descending: false,
+        // });
+      });
+  });
+  test("200: returns sorted object in correct order when given sort_by, order and category queries", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=review_id&order=asc&category=dexterity")
+      .expect(200)
+      .then(({ body: { reviews } }) => {
+        expect(reviews.length > 0).toBe(true);
+        // expect(reviews).toBeSortedBy("review_id", {
+        //   descending: false,
+        // });
+        reviews.forEach((review) => {
+          expect(review).toHaveProperty("category", "dexterity");
+        });
+      });
+  });
 });
