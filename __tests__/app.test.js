@@ -322,4 +322,20 @@ describe("GET /api/reviews/:review_id/comments", () => {
         });
       });
   });
+  test("404: no comments associated with that id", () => {
+    return request(app)
+      .get("/api/reviews/1/comments")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("no comments associated with that id");
+      });
+  });
+  test("404: id does not exist", () => {
+    return request(app)
+      .get("/api/reviews/99/comments")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("does not exist");
+      });
+  });
 });

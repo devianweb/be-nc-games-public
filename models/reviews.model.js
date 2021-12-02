@@ -101,6 +101,11 @@ exports.selectCommentsByReviewId = (id) => {
     checkExists("reviews", "review_id", id),
   ]).then((promise) => {
     const { rows } = promise[0];
+    if (rows.length === 0)
+      return Promise.reject({
+        status: 404,
+        msg: "no comments associated with that id",
+      });
     return rows;
   });
 };
