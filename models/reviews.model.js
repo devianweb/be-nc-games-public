@@ -53,7 +53,6 @@ exports.selectAllReviews = ({
           appCategories.push(category.slug);
         }
       }
-      console.log(appCategories);
       const approvedColumns = [
         "review_id",
         "title",
@@ -73,7 +72,7 @@ exports.selectAllReviews = ({
         return Promise.reject({ status: 400, msg: "Invalid order query" });
       }
       if (![undefined, ...appCategories].includes(category)) {
-        return Promise.reject({ status: 400, msg: "Invalid colour query" });
+        return Promise.reject({ status: 400, msg: "Invalid category query" });
       }
     })
     .then(() => {
@@ -86,7 +85,6 @@ exports.selectAllReviews = ({
       if (category) queryStr += `WHERE reviews.category = '${category}' `;
 
       queryStr += `GROUP BY reviews.review_id ORDER BY ${sort_by} ${order} ;`;
-      console.log(queryStr);
       return db.query(queryStr);
     })
     .then(({ rows }) => {

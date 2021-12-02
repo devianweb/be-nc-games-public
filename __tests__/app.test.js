@@ -269,4 +269,28 @@ describe("GET /api/reviews", () => {
         });
       });
   });
+  test("400: invalid sort_by query", () => {
+    return request(app)
+      .get("/api/reviews?sort_by=dogs")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid sort query");
+      });
+  });
+  test("400: invalid order query", () => {
+    return request(app)
+      .get("/api/reviews?order=backwards")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid order query");
+      });
+  });
+  test("400: invalid category query", () => {
+    return request(app)
+      .get("/api/reviews?category=cats")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("Invalid category query");
+      });
+  });
 });
