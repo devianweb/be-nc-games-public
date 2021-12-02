@@ -91,3 +91,16 @@ exports.selectAllReviews = ({
       return rows;
     });
 };
+
+exports.selectCommentsByReviewId = (id) => {
+  return Promise.all([
+    db.query(
+      `SELECT comment_id, author, votes, created_at, body FROM comments WHERE review_id = $1 ;`,
+      [id]
+    ),
+    checkExists("reviews", "review_id", id),
+  ]).then((promise) => {
+    const { rows } = promise[0];
+    return rows;
+  });
+};
