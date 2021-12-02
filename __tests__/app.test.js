@@ -288,9 +288,21 @@ describe("GET /api/reviews", () => {
   test("400: invalid category query", () => {
     return request(app)
       .get("/api/reviews?category=cats")
-      .expect(400)
+      .expect(404)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("Invalid category query");
+        expect(msg).toBe("invalid category query");
+      });
+  });
+  test("404: category exists but no associated reviews", () => {
+    return request(app)
+      .get("/api/reviews?category=children's games")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            reviews: expect.any(Array),
+          })
+        );
       });
   });
 });
@@ -337,5 +349,107 @@ describe("GET /api/reviews/:review_id/comments", () => {
       .then(({ body: { msg } }) => {
         expect(msg).toBe("does not exist");
       });
+  });
+});
+
+describe("POST /api/reviews/:review_id/comments", () => {
+  test("200: comment object is returned and has been added to comments table", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({
+        username: "dav3rid",
+        body: "This game is awesome!",
+      })
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: 7,
+            author: "dav3rid",
+            review_id: 1,
+            votes: 0,
+            created_at: expect.any(String),
+            body: "This game is awesome!",
+          })
+        );
+      })
+      .then(() => {
+        return db.query(`SELECT * FROM comments`).then(({ rows }) => {
+          expect(rows.length).toBe(7);
+        });
+      });
+  });
+  test("400: body has additional keys", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({
+        username: "dav3rid",
+        body: "This game is awesome!",
+        junk: "this shouldn't be here!",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+  test("400: body is missing keys", () => {
+    return Promise.all([
+      request(app)
+        .post("/api/reviews/1/comments")
+        .send({
+          username: "dav3rid",
+          junk: "this shouldn't be here!",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        }),
+      request(app)
+        .post("/api/reviews/1/comments")
+        .send({
+          body: "valid input",
+          junk: "this shouldn't be here!",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        }),
+    ]);
+  });
+  test("404 review_id doesn't exist", () => {
+    return request(app)
+      .post("/api/reviews/99/comments")
+      .send({
+        username: "dav3rid",
+        body: "This game is awesome!",
+      })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("does not exist");
+      });
+  });
+  test("400: post data is incorrect", () => {
+    return Promise.all([
+      request(app)
+        .post("/api/reviews/1/comments")
+        .send({
+          username: "dav3rid",
+          body: 1337,
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        }),
+      request(app)
+        .post("/api/reviews/1/comments")
+        .send({
+          username: 1337,
+          body: "valid body",
+        })
+        .expect(400)
+        .then(({ body: { msg } }) => {
+          expect(msg).toBe("invalid input");
+        }),
+    ]);
   });
 });
