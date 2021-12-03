@@ -453,3 +453,47 @@ describe("POST /api/reviews/:review_id/comments", () => {
     ]);
   });
 });
+
+describe.only("DELETE /api/comments/:comment_id", () => {
+  test("204: deletes comment and returns no content", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {
+        return db.query("SELECT * FROM comments");
+      })
+      .then(({ rows }) => {
+        expect(rows.length).toBe(5);
+      });
+  });
+  test("204: correct comment is deleted", () => {
+    return request(app)
+      .delete("/api/comments/1")
+      .expect(204)
+      .then(() => {
+        return db.query("SELECT * FROM comments");
+      })
+      .then(({ rows }) => {
+        expect(rows.length > 0).toBe(true);
+        rows.forEach((comment) => {
+          expect(comment).not.toHaveProperty("comment_id", 1);
+        });
+      });
+  });
+  test("404: valid comment_id but does not exist", () => {
+    return request(app)
+      .delete("/api/comments/99")
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("does not exist");
+      });
+  });
+  test("400: invalid comment_id value", () => {
+    return request(app)
+      .delete("/api/comments/kittens")
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+});
