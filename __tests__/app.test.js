@@ -166,19 +166,19 @@ describe("PATCH /api/reviews/:review_id", () => {
         expect(review).not.toHaveProperty("inc_votes");
       });
   });
+  test("200: missing 'inc_votes' key", () => {
+    return request(app)
+      .patch("/api/reviews/1")
+      .send({})
+      .expect(200)
+      .then(({ body: { review } }) => {
+        expect(typeof review).toBe("object");
+      });
+  });
   test("400: bad 'inc_votes' value", () => {
     return request(app)
       .patch("/api/reviews/1")
       .send({ inc_votes: "meow" })
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("invalid input");
-      });
-  });
-  test("400: additional keys on patch body", () => {
-    return request(app)
-      .patch("/api/reviews/1")
-      .send({ inc_votes: 1, name: "Mitch" })
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("invalid input");
@@ -191,6 +191,15 @@ describe("PATCH /api/reviews/:review_id", () => {
       .expect(404)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("does not exist");
+      });
+  });
+  test("400: bad 'review_id' value", () => {
+    return request(app)
+      .patch("/api/reviews/not-an-id")
+      .send({ inc_votes: 1 })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
       });
   });
 });
@@ -334,12 +343,20 @@ describe("GET /api/reviews/:review_id/comments", () => {
         });
       });
   });
-  test("404: no comments associated with that id", () => {
+  test("200: no comments associated with that id", () => {
     return request(app)
       .get("/api/reviews/1/comments")
-      .expect(404)
+      .expect(200)
+      .then(({ body: { comments } }) => {
+        expect(comments.length).toBe(0);
+      });
+  });
+  test("404: invalid id", () => {
+    return request(app)
+      .get("/api/reviews/not-an-id/comments")
+      .expect(400)
       .then(({ body: { msg } }) => {
-        expect(msg).toBe("no comments associated with that id");
+        expect(msg).toBe("invalid input");
       });
   });
   test("404: id does not exist", () => {
@@ -353,7 +370,7 @@ describe("GET /api/reviews/:review_id/comments", () => {
 });
 
 describe("POST /api/reviews/:review_id/comments", () => {
-  test("200: comment object is returned and has been added to comments table", () => {
+  test("201: comment object is returned and has been added to comments table", () => {
     return request(app)
       .post("/api/reviews/1/comments")
       .send({
@@ -379,17 +396,32 @@ describe("POST /api/reviews/:review_id/comments", () => {
         });
       });
   });
-  test("400: body has additional keys", () => {
+  test("201: ignores additional properties", () => {
     return request(app)
       .post("/api/reviews/1/comments")
       .send({
         username: "dav3rid",
         body: "This game is awesome!",
-        junk: "this shouldn't be here!",
+        thing: "I'm an additional property!",
       })
-      .expect(400)
-      .then(({ body: { msg } }) => {
-        expect(msg).toBe("invalid input");
+      .expect(201)
+      .then(({ body: { comment } }) => {
+        expect(comment).toEqual(
+          expect.objectContaining({
+            comment_id: 7,
+            author: "dav3rid",
+            review_id: 1,
+            votes: 0,
+            created_at: expect.any(String),
+            body: "This game is awesome!",
+          })
+        );
+        expect(comment).not.toHaveProperty("thing");
+      })
+      .then(() => {
+        return db.query(`SELECT * FROM comments`).then(({ rows }) => {
+          expect(rows.length).toBe(7);
+        });
       });
   });
   test("400: body is missing keys", () => {
@@ -416,7 +448,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
         }),
     ]);
   });
-  test("404 review_id doesn't exist", () => {
+  test("404: review_id doesn't exist", () => {
     return request(app)
       .post("/api/reviews/99/comments")
       .send({
@@ -428,29 +460,29 @@ describe("POST /api/reviews/:review_id/comments", () => {
         expect(msg).toBe("does not exist");
       });
   });
-  test("400: post data is incorrect", () => {
-    return Promise.all([
-      request(app)
-        .post("/api/reviews/1/comments")
-        .send({
-          username: "dav3rid",
-          body: 1337,
-        })
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("invalid input");
-        }),
-      request(app)
-        .post("/api/reviews/1/comments")
-        .send({
-          username: 1337,
-          body: "valid body",
-        })
-        .expect(400)
-        .then(({ body: { msg } }) => {
-          expect(msg).toBe("invalid input");
-        }),
-    ]);
+  test("400: invalid review_id", () => {
+    return request(app)
+      .post("/api/reviews/not-an-id/comments")
+      .send({
+        username: "dav3rid",
+        body: "This game is awesome!",
+      })
+      .expect(400)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("invalid input");
+      });
+  });
+  test("400: username does not exist", () => {
+    return request(app)
+      .post("/api/reviews/1/comments")
+      .send({
+        username: "carricg",
+        body: "This is my league username!",
+      })
+      .expect(404)
+      .then(({ body: { msg } }) => {
+        expect(msg).toBe("does not exist");
+      });
   });
 });
 

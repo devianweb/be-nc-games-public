@@ -1,6 +1,6 @@
 const db = require("../db/connection");
 const format = require("pg-format");
-const { checkExists, checkPatchBody, checkCommentBody } = require("./utils");
+const { checkExists, checkCommentBody } = require("./utils");
 
 exports.selectReviewsById = (id) => {
   return Promise.all([
@@ -23,20 +23,24 @@ exports.selectReviewsById = (id) => {
 exports.updateReviewsById = (req_params, req_body) => {
   const { review_id } = req_params;
   const { inc_votes } = req_body;
-  return Promise.all([
-    checkPatchBody(req_body),
-    checkExists("reviews", "review_id", review_id),
-    db.query(
-      `
-  UPDATE reviews
-  SET votes = votes + $1
-  WHERE review_id = $2
-  RETURNING *
-  `,
-      [inc_votes, review_id]
-    ),
-  ]).then((promise) => {
-    return promise[2].rows[0];
+  return checkExists("reviews", "review_id", review_id).then(() => {
+    if (inc_votes !== undefined) {
+      return db
+        .query(
+          `
+      UPDATE reviews
+      SET votes = votes + $1
+      WHERE review_id = $2
+      RETURNING *
+      `,
+          [inc_votes, review_id]
+        )
+        .then(({ rows }) => {
+          return rows[0];
+        });
+    } else {
+      return {};
+    }
   });
 };
 
@@ -109,11 +113,6 @@ exports.selectCommentsByReviewId = (id) => {
     checkExists("reviews", "review_id", id),
   ]).then((promise) => {
     const { rows } = promise[0];
-    if (rows.length === 0)
-      return Promise.reject({
-        status: 404,
-        msg: "no comments associated with that id",
-      });
     return rows;
   });
 };
@@ -124,6 +123,7 @@ exports.insertCommentsByReviewId = (req_params, req_body) => {
   return Promise.all([
     checkCommentBody(req_body),
     checkExists("reviews", "review_id", review_id),
+    checkExists("users", "username", username),
   ])
     .then(() => {
       const queryStr = format(

@@ -10,23 +10,10 @@ exports.checkExists = (table, column, value) => {
   });
 };
 
-exports.checkPatchBody = (body) => {
-  if (
-    Object.keys(body).length > 1 ||
-    Object.keys(body)[0] !== "inc_votes" ||
-    typeof body.inc_votes !== "number"
-  ) {
-    return Promise.reject({ status: 400, msg: "invalid input" });
-  }
-};
-
 exports.checkCommentBody = (body) => {
   if (
-    Object.keys(body).length > 2 ||
     !Object.keys(body).includes("username") ||
-    !Object.keys(body).includes("body") ||
-    typeof body.username !== "string" ||
-    typeof body.body !== "string"
+    !Object.keys(body).includes("body")
   ) {
     return Promise.reject({ status: 400, msg: "invalid input" });
   }

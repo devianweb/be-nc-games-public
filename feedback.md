@@ -2,11 +2,11 @@
 
 ## Readme - Remove the one that was provided and write your own:
 
-- [ ] Link to hosted version
-- [ ] Write a summary of what the project is
-- [ ] Provide clear instructions of how to clone, install dependencies, seed local database, and run tests
-- [ ] Include information about how to create `.env.test` and `.env.development` files
-- [ ] Specify minimum versions of `Node.js` and `Postgres` needed to run the project
+- [x] Link to hosted version
+- [x] Write a summary of what the project is
+- [x] Provide clear instructions of how to clone, install dependencies, seed local database, and run tests
+- [x] Include information about how to create `.env.test` and `.env.development` files
+- [x] Specify minimum versions of `Node.js` and `Postgres` needed to run the project
 
 ## General
 
@@ -47,10 +47,10 @@
 - `PATCH /api/reviews/:review_id`
 
   - [x] Status 200, updated single review object
-  - [] Status 400, invalid ID, e.g. string of "not-an-id"
+  - [x] Status 400, invalid ID, e.g. string of "not-an-id"
   - [x] Status 400, invalid inc_votes type, e.g. property is not a number
   - [x] Status 404, non existent ID, e.g. 0 or 9999
-  - [ ] Status 200, missing `inc_votes` key. No effect to article.
+  - [x] Status 200, missing `inc_votes` key. No effect to article.
 
 - `GET /api/reviews`
 
@@ -69,18 +69,18 @@
 - `GET /api/reviews/:review_id/comments`
 
   - [x] Status 200, array of comment objects for the specified review
-  - [ ] Status 400, invalid ID, e.g. string of "not-an-id"
+  - [x] Status 400, invalid ID, e.g. string of "not-an-id"
   - [x] Status 404, non existent ID, e.g. 0 or 9999
-  - [ ] Status 200, valid ID, but has no comments responds with an empty array of comments
+  - [x] Status 200, valid ID, but has no comments responds with an empty array of comments
 
 - `POST /api/reviews/:review_id/comments`
 
-  - [ ] Status 201, created comment object
-  - [ ] Status 400, invalid ID, e.g. string of "not-an-id"
+  - [x] Status 201, created comment object
+  - [x] Status 400, invalid ID, e.g. string of "not-an-id"
   - [x] Status 404, non existent ID, e.g. 0 or 9999
   - [x] Status 400, missing required field(s), e.g. no username or body properties
-  - [ ] Status 404, username does not exist
-  - [ ] Status 201, ignores unnecessary properties
+  - [x] Status 404, username does not exist
+  - [x] Status 201, ignores unnecessary properties
 
 - `DELETE /api/comments/:comment_id`
 
