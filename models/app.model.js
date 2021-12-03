@@ -8,6 +8,7 @@ exports.selectEndpoints = () => {
     "POST comment by review_id": "POST /api/reviews/:review_id/comments",
     "DELETE comments by commend_id": "DELETE /api/comments/:comment_id",
     "GET all available endpoints": "GET /api",
+    "GET all users": "GET /api/users",
   };
   return availableEndpoints;
 };

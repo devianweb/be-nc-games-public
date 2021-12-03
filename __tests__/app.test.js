@@ -544,3 +544,21 @@ describe("GET /api", () => {
       });
   });
 });
+
+describe("GET /api/users", () => {
+  test("200: responds with array of user objects", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then(({ body: { usernames } }) => {
+        expect(usernames.length > 0).toBe(true);
+        usernames.forEach((username) => {
+          expect(username).toEqual(
+            expect.objectContaining({
+              username: expect.any(String),
+            })
+          );
+        });
+      });
+  });
+});
