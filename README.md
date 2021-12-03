@@ -12,7 +12,7 @@ https://ian-nc-games.herokuapp.com/api
 
 ## Cloning
 
-To clone the repo, go to the github repo, select the 'code' dropdown menu and then clone the repo down to your local files. This can be done using `git clone <repo-url-here>`.
+To clone the repo, go to the github repo (`https://github.com/devianweb/be-nc-games-public`), select the 'code' dropdown menu and then clone the repo down to your local files. This can be done using `git clone <repo-url-here>`.
 
 ## Creating .env files
 
