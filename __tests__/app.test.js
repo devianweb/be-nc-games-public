@@ -454,7 +454,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
   });
 });
 
-describe.only("DELETE /api/comments/:comment_id", () => {
+describe("DELETE /api/comments/:comment_id", () => {
   test("204: deletes comment and returns no content", () => {
     return request(app)
       .delete("/api/comments/1")
@@ -494,6 +494,21 @@ describe.only("DELETE /api/comments/:comment_id", () => {
       .expect(400)
       .then(({ body: { msg } }) => {
         expect(msg).toBe("invalid input");
+      });
+  });
+});
+
+describe("GET /api", () => {
+  test("200: returns object containing available endpoints", () => {
+    return request(app)
+      .get("/api")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body).toEqual(
+          expect.objectContaining({
+            endpoints: expect.any(Object),
+          })
+        );
       });
   });
 });
