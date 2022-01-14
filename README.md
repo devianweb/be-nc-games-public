@@ -1,4 +1,4 @@
-# HOUSE OF GAMES API
+# HOUSE OF GAMES BACK END API
 
 ## Background
 
